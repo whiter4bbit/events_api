@@ -14,6 +14,7 @@ import net.liftweb.json.scalaz.JsonScalaz._
 import net.liftweb.json.Serialization.write
 import net.liftweb.json._
 import java.util.Date
+import org.joda.time.DateTime
 
 trait EventsAPI extends ScalatraFilter with OAuthProviderFilter with Scalatraz with JsonSupport { 
   this: Services => 

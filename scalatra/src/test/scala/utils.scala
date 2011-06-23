@@ -25,15 +25,11 @@ trait MockServices extends Services {
   val eventService = new Object with EventService with TestDBCollections
 }
 
-class MockProviderTest extends EventsAPI with MockServices {
+class MockEventsAPIFilter extends EventsAPI with MockServices {
   override def storage = new java.lang.Object with OAuthMongoStorage with TestDBCollections  
 }
 
-case class User(val id: String, val login: String, val password: String, val consumerKey: String, val consumerSecret: String)
-case class Event(val id: Option[String], val name: String, val description: String, val startDate: Date, val endDate: Date)
-
 trait EventsAPISpec extends ScalatraSpecification {    
-   implicit val formats = DefaultFormats
    val localURL = "http://127.0.0.1"
    val collections = new TestDBCollections{}
 

@@ -3,6 +3,7 @@ package info.whiter4bbit.oauth.scalatra.example
 import com.mongodb.casbah.Imports._
 import org.slf4j.LoggerFactory
 import java.util.Date
+import org.joda.time.DateTime
 import scalaz._
 import Scalaz._
 
@@ -10,13 +11,18 @@ trait EventMongoCollection {
    val events: MongoCollection
 }
 
-case class Event(val id: Option[String], val name: String, val description: String, val startDate: Date, val endDate: Date)
+case class Event(val id: Option[String], val name: String, val description: String, val startDate: DateTime, val endDate: DateTime)
 
 trait EventService { self: EventMongoCollection => 
    val logger = LoggerFactory.getLogger(getClass)
    def add(event: Event, id: String): Validation[String, Event] = {
       if (self.events.find(MongoDBObject("name" -> event.name)).size == 0) {
-          val obj = MongoDBObject("name" -> event.name, "description" -> event.description, "startDate" -> event.startDate, "userId" -> id, "endDate" -> event.endDate)
+          val obj = MongoDBObject(
+	    "name" -> event.name, 
+	    "description" -> event.description, 
+	    "startDate" -> event.startDate.toDate, 
+	    "userId" -> id, 
+	    "endDate" -> event.endDate.toDate)
           self.events.insert(obj)
           self.events.last.getAs[ObjectId]("_id").map((id) => {
 	       Event(Some(id.toString), event.name, event.description, event.startDate, event.endDate).success
@@ -35,7 +41,7 @@ trait EventService { self: EventMongoCollection =>
 	    startDate <- event.getAs[java.util.Date]("startDate");
 	    endDate <- event.getAs[java.util.Date]("endDate")
 	 } yield {
-	    Event(Some(id.toString), name, description, startDate, endDate)
+	    Event(Some(id.toString), name, description, new DateTime(startDate.getTime), new DateTime(endDate.getTime))
 	 }
       }).toList.filter(_.isDefined).map(_.get).success
    }

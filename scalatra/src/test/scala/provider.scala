@@ -1,16 +1,27 @@
 package info.whiter4bbit.oauth.scalatra.example
 
 import org.specs._
+import org.specs.matcher._
 import org.scalatra.test.specs._
 import net.liftweb.json._
 import net.liftweb.json.JsonDSL._
 import net.liftweb.json.Serialization.{write => jwrite}
-import java.util.Date
+import info.whiter4bbit.chttp.oauth.Token
+import org.joda.time.DateTime
 
-class RestAPISpec extends EventsAPISpec {
+class RestAPISpec extends EventsAPISpec with JsonSupport {
 
-   addFilter(classOf[MockProviderTest], "/*")   
+   addFilter(classOf[MockEventsAPIFilter], "/*")   
 
+   case class beInsertedEvent(event: Event) extends Matcher[Any] {
+      def apply(other: => Any) = {	   
+        (other match {
+          case Event(Some(id), event.name, event.description, event.startDate, event.endDate) => true
+          case _ => false
+        }, "Object matches inserted event", "Object don't matches inserted event")
+      }
+   }
+ 
    "events rest public api" should {
       doBefore {
          cleanCollections
@@ -60,20 +71,39 @@ class RestAPISpec extends EventsAPISpec {
 	 }
 	 loaded must ==(User(user.id, user.login, user.password, user.consumerKey, user.consumerSecret))
       }
-      "add event" in {
-         val token = getOAuthToken(user)
-	 val json = jwrite(Event(None, "event1", "event description", new Date, new Date))
-	 val event = oauthPost("/api/events/add", user, Some(token), params = List(("event", json))) {
+     "add event" in {
+         val token = getOAuthToken(user)	 
+	 val start = new DateTime().withYear(2011).withMonthOfYear(12).withDayOfMonth(12).withTime(12, 0, 0, 0)
+	 val end = new DateTime().withYear(2011).withMonthOfYear(12).withDayOfMonth(12).withTime(14, 0, 0, 0)	 
+	 val event = Event(None, "event1", "event description", start, end)
+	 val stored = addEvent(event, token) {
 	    status must ==(200)
-	    parse(body).extract[Event]
+	    parse(body).extract[Event] 
 	 }
-	 event.id must beSome[String]
+	 stored must beInsertedEvent(event)
       }
-      "do not allow to add event with same name twice" in {         
+      "do not allow to add event with same name twice" in {      
          val token = getOAuthToken(user)      
-	 val event = Event(None, "event2", "event description", new Date, new Date)
+	 val event = Event(None, "event2", "event description", new DateTime(0), new DateTime(0))
 	 addEvent(event, token) { status must ==(200) }
-	 addEvent(event, token) { status must ==(200) }
+	 addEvent(event, token) { status must ==(400) }
+      }
+      "show events created by user" in {
+         cleanEvents
+         val token = getOAuthToken(user)
+	 val start = new DateTime().withYear(2011).withMonthOfYear(12).withDayOfMonth(12).withTime(12, 0, 0, 0)
+	 val end = new DateTime().withYear(2011).withMonthOfYear(12).withDayOfMonth(12).withTime(14, 0, 0, 0)	 
+	 val event1 = Event(None, "The Prodigy Fans meetup", "Meet other The Prodigy fans", start, end)
+	 val event2 = Event(None, "Sushi master class", "Chief cook of \"Chinese restaurant\" gives master class", start, )
+	 addEvent(event1, token) { status must ==(200) }	 
+	 addEvent(event2, token) { status must ==(200) }
+	 val events = oauthGet("/api/events/mine", user, Some(token)) { 
+	   status must ==(200)
+	   parse(body).extract[List[Event]] 
+	 }	 
+	 events must haveSize(2)
+	 events(0) must beInsertedEvent(event1)
+	 events(1) must beInsertedEvent(event2)
       }
    }
 }
