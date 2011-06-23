@@ -15,26 +15,12 @@ import net.liftweb.json.Serialization.write
 import net.liftweb.json._
 import java.util.Date
 
-trait EventsAPI extends ScalatraFilter with OAuthProviderFilter with Scalatraz { 
+trait EventsAPI extends ScalatraFilter with OAuthProviderFilter with Scalatraz with JsonSupport { 
   this: Services => 
-
-  implicit def dateJSON(implicit formats: Formats): JSON[Date] = new JSON[Date] {
-      def read(json: JValue) = json match {
-         case v@JString(x) => formats.dateFormat.parse(x).map((date) => {
-            date.success
-         }).getOrElse(UnexpectedJSONError(v, classOf[JString]).fail.liftFailNel)
-         case x => UnexpectedJSONError(x, classOf[JString]).fail.liftFailNel
-      }
-      def write(date: Date) = {
-         JString(formats.dateFormat.format(date))
-      }
-  }
 
   val logger = LoggerFactory.getLogger(getClass) 
 
   def storage: OAuthMongoStorage = new java.lang.Object with OAuthMongoStorage with MongoDBCollections  
-
-  implicit val formats = DefaultFormats
 
   postz("/api/user/new") {  
      for {

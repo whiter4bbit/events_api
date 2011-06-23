@@ -16,6 +16,7 @@ object Dependencies {
    val specs = "org.specs" % "specs" % "1.4.3" % "test"
    val liftJsonScalaz = "net.liftweb" %% "lift-json-scalaz" % "2.4-SNAPSHOT"
    val liftJson = "net.liftweb" %% "lift-json" % "2.4-SNAPSHOT"
+   val paranamer = "com.thoughtworks.paranamer" % "paranamer" % "2.3"
 
    val oauthCore = "info.whiter4bbit" %% "oauth-core" % "1.0"
    val oauthMongoDB = "info.whiter4bbit" %% "oauth-mongodb" % "1.0"
@@ -50,7 +51,7 @@ object EventsAPI extends Build {
      resolvers := allResolvers,
      libraryDependencies := Seq (
              scalatra, scalatraSpecs, servletApi, scalatest, slf4jBinding, 
-	     casbah, liftJsonScalaz, liftJson, scalaz, specs, oauthCore, oauthMongoDB, oauthScalatra, jetty
+	     casbah, liftJsonScalaz, liftJson, scalaz, specs, paranamer, oauthCore, oauthMongoDB, oauthScalatra, chttp, jetty
      ) 
    )
 
