@@ -94,7 +94,7 @@ class RestAPISpec extends EventsAPISpec with JsonSupport {
 	 val start = new DateTime().withYear(2011).withMonthOfYear(12).withDayOfMonth(12).withTime(12, 0, 0, 0)
 	 val end = new DateTime().withYear(2011).withMonthOfYear(12).withDayOfMonth(12).withTime(14, 0, 0, 0)	 
 	 val event1 = Event(None, "The Prodigy Fans meetup", "Meet other The Prodigy fans", start, end)
-	 val event2 = Event(None, "Sushi master class", "Chief cook of \"Chinese restaurant\" gives master class", start, )
+	 val event2 = Event(None, "Sushi master class", "Chief cook of \"Chinese restaurant\" gives master class", start, end)
 	 addEvent(event1, token) { status must ==(200) }	 
 	 addEvent(event2, token) { status must ==(200) }
 	 val events = oauthGet("/api/events/mine", user, Some(token)) { 
