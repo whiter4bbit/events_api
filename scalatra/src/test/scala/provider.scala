@@ -119,7 +119,10 @@ class RestAPISpec extends EventsAPISpec with JsonSupport {
 	 val json = compact(render(Map("id" -> eventId)))
 	 oauthPost("/api/events/attend", user, Some(token), params = List(("event" -> json))) {
 	    status must ==(200)
-	 }	 
+	 } 
+	 oauthGet("/api/events/attendees/" + eventId, user, None) {
+	    status must ==(200)	    
+	 }
       }
    }
 }
