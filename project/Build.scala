@@ -2,7 +2,7 @@ import sbt._
 import Keys._
 import com.github.siasia.WebPlugin._
 
-object Dependencies {   
+object Dependencies { 
    val scalatraVersion = "2.0.0-SNAPSHOT"
 
    val scalatra = "org.scalatra" %% "scalatra" % scalatraVersion   

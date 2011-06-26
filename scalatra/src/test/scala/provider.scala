@@ -105,5 +105,21 @@ class RestAPISpec extends EventsAPISpec with JsonSupport {
 	 events(0) must beInsertedEvent(event1)
 	 events(1) must beInsertedEvent(event2)
       }
+      "attend current user to event" in {
+         cleanEvents
+         val token = getOAuthToken(user)
+	 val start = new DateTime().withYear(2011).withMonthOfYear(12).withDayOfMonth(12).withTime(12, 0, 0, 0)	
+         val end = new DateTime().withYear(2011).withMonthOfYear(12).withDayOfMonth(12).withTime(18, 0, 0, 0)	
+	 val event = Event(None, "Birthday party", "%s's birthday party" format System.getProperty("user.name"), start, end)
+	 val added = addEvent(event, token) { 
+	   status must ==(200) 
+	   parse(body).extract[Event]
+	 }
+	 val eventId = added.asInstanceOf[Event].id.get
+	 val json = compact(render(Map("id" -> eventId)))
+	 oauthPost("/api/events/attend", user, Some(token), params = List(("event" -> json))) {
+	    status must ==(200)
+	 }	 
+      }
    }
 }

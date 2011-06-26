@@ -53,6 +53,17 @@ trait EventsAPI extends ScalatraFilter with OAuthProviderFilter with Scalatraz w
      }
   }
 
+  protectedPost("/api/events/attend") {
+     for {
+        raw <- paramz("event");
+	eventId <- field[String]("id")(parse(raw));
+	userId <- userService.find(oauthRequest.consumer.consumerKey).map(_.id);
+	attended <- eventService.attend(eventId, userId)
+     } yield {
+        write(attended)
+     }
+  }
+
   protectedGet("/api/events/mine") {  
      for {
         user <- userService.find(oauthRequest.consumer.consumerKey);
@@ -61,6 +72,24 @@ trait EventsAPI extends ScalatraFilter with OAuthProviderFilter with Scalatraz w
         write(events)
      }
   }
+
+  def int(n: String): Validation[String, Int] = {
+     try {
+        Integer.parseInt(n).success
+     } catch {
+        case _ => ("%s is not a number" format n).fail
+     }
+  }
+
+  getz("/api/events/latest/:num") {
+     for {     
+        num <- paramz("num") flatMap int;       
+	events <- eventService.latest(num)
+     } yield {
+        write(events)
+     }
+  }
+ 
 }
 
 class EventsAPIImpl extends EventsAPI with ServicesImpl 

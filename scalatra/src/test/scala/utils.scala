@@ -69,7 +69,7 @@ trait EventsAPISpec extends ScalatraSpecification {
         status must ==(200)
         val parameters = OAuthUtil.bodyParameters(body)
         Token(parameters("oauth_token"), parameters("oauth_token_secret"))
-      }	 
+      } 
       var pin: String = null
       post("/authenticate", params = List(("token", token.token))) {
         status must ==(200)

@@ -54,14 +54,27 @@ trait EventService { self: EventMongoCollection =>
       }
    }
 
-   def attend(eventId: String, consumerKey: String): Validation[String, String] = {   
+   def attend(eventId: String, userId: String): Validation[String, String] = {   
       (for {
          id <- objectId(eventId);
 	 modified <- self.events.findAndModify(MongoDBObject("_id" -> id), 
-	                                       MongoDBObject("$addToSet" -> MongoDBObject("attendees" -> consumerKey)))
+	                                       MongoDBObject("$addToSet" -> MongoDBObject("attendees" -> userId)))
       } yield {
          eventId.success
       }).getOrElse("Error while updating event".fail)
    }
 
+   def latest(limit: Int): Validation[String, List[Event]] = {
+      self.events.find("startDate" $gte new Date()).limit(limit).map( (obj) => {
+         for {
+	    id <- obj.getAs[ObjectId]("_id");
+	    name <- obj.getAs[String]("name");
+	    description <- obj.getAs[String]("description");
+	    startDate <- obj.getAs[Date]("startDate").map(new DateTime(_));
+	    endDate <- obj.getAs[Date]("endDate").map(new DateTime(_))
+	 } yield {
+	    Event(Some(id.toString), name, description, startDate, endDate)
+	 }
+      }).toList.filter(_.isDefined).map(_.get).success
+   }
 }
