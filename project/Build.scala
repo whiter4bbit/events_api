@@ -19,6 +19,10 @@ object Dependencies {
    val liftJsonExt = "net.liftweb" %% "lift-json-ext" % "2.4-SNAPSHOT"
    val paranamer = "com.thoughtworks.paranamer" % "paranamer" % "2.3"
 
+   val unfilteredFilter = "net.databinder" %% "unfiltered-filter" % "0.3.4"  
+   val unfilteredJetty = "net.databinder" %% "unfiltered-jetty" % "0.3.4"
+   val unfilteredOAuth = "net.databinder" %% "unfiltered-oauth" % "0.3.4"
+
    val oauthCore = "info.whiter4bbit" %% "oauth-core" % "1.0"
    val oauthMongoDB = "info.whiter4bbit" %% "oauth-mongodb" % "1.0"
    val oauthScalatra = "info.whiter4bbit" %% "oauth-scalatra" % "1.0"
@@ -56,10 +60,20 @@ object EventsAPI extends Build {
      ) 
    )
 
+   val unfilteredSettings = Seq (
+     libraryDependencies := Seq ( unfilteredFilter, unfilteredJetty, unfilteredOAuth )
+   )
+
    lazy val scalatraImpl = Project(
       "events-scalatra", 
       file("scalatra"), 
       settings = buildSettings ++ webSettings ++ scalatraSettings
    ) 
+
+   lazy val unfilteredImpl = Project(
+      "events-unfiltered",
+      file("unfiltered"),
+      settings = buildSettings ++ unfilteredSettings
+   )
 }
 
