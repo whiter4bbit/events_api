@@ -98,6 +98,15 @@ trait EventsAPI extends ScalatraFilter with OAuthProviderFilter with Scalatraz w
        write(attendees)
      }
   }
+
+  getz("/api/users/public/:id") {
+      for {
+         id <- paramz("id");
+	 user <- userService.findPublic(id)
+      } yield {
+         write(user)
+      }
+  }
 }
 
 class EventsAPIImpl extends EventsAPI with ServicesImpl 

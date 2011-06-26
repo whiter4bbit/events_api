@@ -84,6 +84,6 @@ trait EventService { self: EventMongoCollection =>
 	 event <- self.events.findOne(MongoDBObject("_id" -> id))	 
       } yield {
          event.getAs[BasicDBList]("attendees").map(_.toList.map(_.toString)).getOrElse(List()).success	 
-      }).getOrElse(("Can't get list of attendees for event %s" format eventId).fail)
+      }).getOrElse(("Can't get list of attendees for event %s" format eventId).fail)     
    }
 }
