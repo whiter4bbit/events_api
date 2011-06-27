@@ -21,8 +21,11 @@ object Dependencies {
 
    val unfilteredFilter = "net.databinder" %% "unfiltered-filter" % "0.3.4"  
    val unfilteredJetty = "net.databinder" %% "unfiltered-jetty" % "0.3.4"
+   val unfilteredJson = "net.databinder" %% "unfiltered-json" % "0.3.4"
    val unfilteredOAuth = "net.databinder" %% "unfiltered-oauth" % "0.3.4"
+   val unfilteredSpec = "net.databinder" %% "unfiltered-spec" % "0.3.4" //% "test"
 
+   val commonsLang = "commons-lang" % "commons-lang" % "2.3"
    val oauthCore = "info.whiter4bbit" %% "oauth-core" % "1.0"
    val oauthMongoDB = "info.whiter4bbit" %% "oauth-mongodb" % "1.0"
    val oauthScalatra = "info.whiter4bbit" %% "oauth-scalatra" % "1.0"
@@ -33,7 +36,7 @@ object Resolvers {
    lazy val snapshots = "Scala Tools Snapshots" at "http://scala-tools.org/repo-snapshots/"
    lazy val sonatype = "Sonatype Nexus Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
    lazy val fuse = "FuseSource Snapshot Repository" at "http://repo.fusesource.com/nexus/content/repositories/snapshots"   
-   lazy val home = Resolver.file("home repo", file("/home/whiter4bbit/documents/whiter4bbit.github.com/maven/")) transactional()
+   lazy val home = Resolver.file("home repo", file("/home/whiter4bbit/documents/whiter4bbit.github.com/maven/")) 
 
    val allResolvers = Seq(home, snapshots, sonatype, fuse)   
 }
@@ -52,28 +55,38 @@ object EventsAPI extends Build {
      scalaVersion := buildScalaVersion
    )
    
-   val scalatraSettings = Seq (
+   val scalatraSettings = Seq(
      resolvers := allResolvers,
-     libraryDependencies := Seq (
-             scalatra, scalatraSpecs, servletApi, scalatest, slf4jBinding, 
-	     casbah, liftJsonScalaz, liftJson, scalaz, specs, paranamer, oauthCore, oauthMongoDB, oauthScalatra, chttp, jetty, liftJsonExt
-     ) 
+     libraryDependencies := Seq(scalatra, scalatraSpecs, servletApi, scalatest, slf4jBinding, liftJsonScalaz,
+       liftJson, specs, paranamer, oauthScalatra, chttp, jetty, liftJsonExt, casbah, scalaz, oauthCore, oauthMongoDB)
    )
 
    val unfilteredSettings = Seq (
-     libraryDependencies := Seq ( unfilteredFilter, unfilteredJetty, unfilteredOAuth )
+     resolvers := allResolvers,
+     libraryDependencies := Seq(paranamer, unfilteredFilter, unfilteredJetty, unfilteredOAuth, unfilteredJson, liftJsonScalaz, liftJson, liftJsonExt, unfilteredSpec)     
    )
 
-   lazy val scalatraImpl = Project(
+   val coreSettings = Seq (
+     resolvers := allResolvers,
+     libraryDependencies := Seq(casbah, liftJson, liftJsonScalaz, liftJsonExt, scalaz, oauthCore, oauthMongoDB, commonsLang)
+   )
+
+   lazy val scalatraImpl: Project = Project(   
       "events-scalatra", 
       file("scalatra"), 
       settings = buildSettings ++ webSettings ++ scalatraSettings
-   ) 
+   ) dependsOn (eventsAPI)
 
    lazy val unfilteredImpl = Project(
       "events-unfiltered",
       file("unfiltered"),
       settings = buildSettings ++ unfilteredSettings
-   )
+   ) dependsOn (eventsAPI)
+
+   lazy val eventsAPI: Project = Project(
+      "events-api",
+      file("api"),
+      settings = buildSettings ++ coreSettings
+   ) 
 }
 

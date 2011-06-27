@@ -1,4 +1,4 @@
-package info.whiter4bbit.oauth.scalatra.example
+package info.whiter4bbit.events
 
 import com.mongodb.casbah.Imports._
 import org.slf4j.LoggerFactory

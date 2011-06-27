@@ -1,4 +1,4 @@
-package info.whiter4bbit.oauth.scalatra.example
+package info.whiter4bbit.events
 
 trait Services {
   val userService: UserService

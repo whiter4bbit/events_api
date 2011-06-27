@@ -8,6 +8,7 @@ import net.liftweb.json.JsonDSL._
 import net.liftweb.json.Serialization.{write => jwrite}
 import info.whiter4bbit.chttp.oauth.Token
 import org.joda.time.DateTime
+import info.whiter4bbit.events._
 
 class RestAPISpec extends EventsAPISpec with JsonSupport {
 
@@ -29,7 +30,7 @@ class RestAPISpec extends EventsAPISpec with JsonSupport {
       "create user if all parameters is correct" in {         
          val json = compact(render(Map("login" -> "pasha", 
 	                               "password" -> "12345")))				       
-         post("/api/user/new", params = ("user", json)) {
+         put("/api/user/new", body = json) {
 	    status must ==(200)
 	    val user = parse(body).extract[User]
 	    user.login must ==("pasha")
@@ -41,10 +42,8 @@ class RestAPISpec extends EventsAPISpec with JsonSupport {
       "do not create user with login, that already exists" in {
          val json = compact(render(Map("login" -> "pasha", 
 	                               "password" -> "54321")))				       
-         post("/api/user/new", params = ("user", json)) {} 				       
-         post("/api/user/new", params = ("user", json)) {
-	    status must ==(400)
-	 } 
+         put("/api/user/new", body = json) { status must==(200) } 
+         put("/api/user/new", body = json) { status must ==(400) } 
       }
    }
 
@@ -54,14 +53,14 @@ class RestAPISpec extends EventsAPISpec with JsonSupport {
          cleanCollections	          
 	 val json = compact(render(Map("login" -> "pasha", 	 
 	                               "password" -> "54321")))				       
-         post("/api/user/new", params = ("user", json)) {
+         put("/api/user/new", json) {
 	    status must ==(200)
 	    user = parse(body).extract[User]
 	 }
       }
       def addEvent(event: Event, token: Token)(f: => Any) = {
          val json = jwrite(event)
-       	 oauthPost("/api/events/add", user, Some(token), params = List(("event", json)))(f)
+       	 oauthPut("/api/events/add", user, Some(token), body = json)(f)
       }
       "present user information" in {
          val token = getOAuthToken(user)
@@ -119,7 +118,7 @@ class RestAPISpec extends EventsAPISpec with JsonSupport {
 	 }
 	 val eventId = added.asInstanceOf[Event].id.get
 	 val json = compact(render(Map("id" -> eventId)))
-	 oauthPost("/api/events/attend", user, Some(token), params = List(("event" -> json))) {
+	 oauthPut("/api/events/attend", user, Some(token), body = json) {
 	    status must ==(200)
 	 } 
 	 oauthGet("/api/events/attendees/" + eventId, user, None) {

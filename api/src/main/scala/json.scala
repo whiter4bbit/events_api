@@ -1,4 +1,4 @@
-package info.whiter4bbit.oauth.scalatra.example
+package info.whiter4bbit.events.json
 
 import scalaz._
 import Scalaz._

@@ -11,6 +11,7 @@ import net.liftweb.json.Serialization.{write => jwrite}
 import info.whiter4bbit.chttp.oauth._
 import info.whiter4bbit.chttp.oauth.util._
 import java.util.Date
+import info.whiter4bbit.events._
 
 trait TestDBCollections extends OAuthCollections with UserMongoCollection with EventMongoCollection {
   override val requests = MongoConnection()("test_oauth")("requests")
@@ -42,7 +43,7 @@ trait EventsAPISpec extends ScalatraSpecification {
       collections.events.drop
    }
 
-   private def oauth[A](method: String)(uri: String, user: User, token: Option[Token] = None, pin: Option[String] = None, params: List[(String, String)] = List())(f: => A): A = {
+   private def oauth[A](method: String)(uri: String, user: User, token: Option[Token] = None, pin: Option[String] = None, params: List[(String, String)] = List(), body: String = "")(f: => A): A = {
        val header = new OAuthHeader()	 
               .setConsumerKey(user.consumerKey)
               .setConsumerSecret(user.consumerSecret) 
@@ -56,6 +57,7 @@ trait EventsAPISpec extends ScalatraSpecification {
        method match {
           case "POST" =>  post(uri, params, headers = Map("Authorization" -> header))(capture(f))
 	  case "GET" => get(uri, params, headers = Map("Authorization" -> header))(capture(f))
+	  case "PUT" => put(uri = uri, headers = Map("Authorization" -> header), body = body)(capture(f))
 	  case _ => throw new Error("Unknown method: %s" format method)
        }
        captured       
@@ -63,6 +65,8 @@ trait EventsAPISpec extends ScalatraSpecification {
 
    def oauthPost[A](uri: String, user: User, token: Option[Token] = None, pin: Option[String] = None, params: List[(String, String)] = List())(f: => A): A = oauth[A]("POST")(uri, user, token, pin, params)(f) 
    def oauthGet[A](uri: String, user: User, token: Option[Token] = None, pin: Option[String] = None, params: List[(String, String)] = List())(f: => A): A = oauth[A]("GET")(uri, user, token, pin, params)(f)
+   def oauthPut[A](uri: String, user: User, token: Option[Token] = None, pin: Option[String] = None, params: List[(String, String)] = List(), body: String = "")(f: => A): A = oauth[A]("PUT")(uri, user, token, pin, params, body)(f)
+
 
    def getOAuthToken(user: User) = {	 
       val token = oauthPost("/oauth/request_token", user) {	   	    

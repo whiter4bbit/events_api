@@ -15,6 +15,8 @@ import net.liftweb.json.Serialization.write
 import net.liftweb.json._
 import java.util.Date
 import org.joda.time.DateTime
+import info.whiter4bbit.events._
+import info.whiter4bbit.events.json._
 
 trait EventsAPI extends ScalatraFilter with OAuthProviderFilter with Scalatraz with JsonSupport { 
   this: Services => 
@@ -23,10 +25,9 @@ trait EventsAPI extends ScalatraFilter with OAuthProviderFilter with Scalatraz w
 
   def storage: OAuthMongoStorage = new java.lang.Object with OAuthMongoStorage with MongoDBCollections  
 
-  postz("/api/user/new") {  
+  putz("/api/user/new") {
      for {
-         raw <- paramz("user");	 
-         json <- parse(raw).success;
+         json <- parse(request.body).success;
 	 login <- field[String]("login")(json);
 	 password <- field[String]("password")(json); 
 	 created <- userService.create(login, password)
@@ -41,22 +42,21 @@ trait EventsAPI extends ScalatraFilter with OAuthProviderFilter with Scalatraz w
      })
   }   
 
-  protectedPost("/api/events/add") {  
+  protectedPut("/api/events/add") {  
      for {
-        raw <- paramz("event");
-	proto <- Function.uncurried(Event.curried(None)).success;
+	proto <- Function.uncurried(Event.curried(None)).success;	
 	id <- userService.find(oauthRequest.consumer.consumerKey).map(_.id);
-	event <- proto.applyJSON(field("name"), field("description"), field("startDate"), field("endDate"))(parse(raw));
+	json <- parse(request.body).success;
+	event <- proto.applyJSON(field("name"), field("description"), field("startDate"), field("endDate"))(json);
 	inserted <- eventService.add(event, id)	
      } yield {
         write(inserted)
      }
   }
 
-  protectedPost("/api/events/attend") {
+  protectedPut("/api/events/attend") {
      for {
-        raw <- paramz("event");
-	eventId <- field[String]("id")(parse(raw));
+	eventId <- field[String]("id")(parse(request.body));
 	userId <- userService.find(oauthRequest.consumer.consumerKey).map(_.id);
 	attended <- eventService.attend(eventId, userId)
      } yield {
