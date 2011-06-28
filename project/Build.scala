@@ -24,6 +24,7 @@ object Dependencies {
    val unfilteredJson = "net.databinder" %% "unfiltered-json" % "0.3.4"
    val unfilteredOAuth = "net.databinder" %% "unfiltered-oauth" % "0.3.4"
    val unfilteredSpec = "net.databinder" %% "unfiltered-spec" % "0.3.4" //% "test"
+   val dispatchOauth = "net.databinder" %% "dispatch-oauth" % "0.7.8"
 
    val commonsLang = "commons-lang" % "commons-lang" % "2.3"
    val oauthCore = "info.whiter4bbit" %% "oauth-core" % "1.0"
@@ -63,7 +64,7 @@ object EventsAPI extends Build {
 
    val unfilteredSettings = Seq (
      resolvers := allResolvers,
-     libraryDependencies := Seq(paranamer, unfilteredFilter, unfilteredJetty, unfilteredOAuth, unfilteredJson, liftJsonScalaz, liftJson, liftJsonExt, unfilteredSpec)     
+     libraryDependencies := Seq(paranamer, unfilteredFilter, unfilteredJetty, unfilteredOAuth, unfilteredJson, liftJsonScalaz, liftJson, liftJsonExt, unfilteredSpec, slf4jBinding, dispatchOauth)     
    )
 
    val coreSettings = Seq (
