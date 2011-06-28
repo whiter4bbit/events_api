@@ -82,5 +82,18 @@ trait UserService extends TokenGenerator { self: UserMongoCollection with TokenG
           User(id.toString, login, password, consumerKey, consumerSecret).success
        }).getOrElse("User not found".fail)
    }
+
+   def findById(id: String): Validation[String, User] = {
+       (for {
+          id <- objectId(id); 
+          found <- self.users.findOne(MongoDBObject("_id" -> id));
+	  login <- found.getAs[String]("login");
+	  password <- found.getAs[String]("password");
+	  consumerKey <- found.getAs[String]("consumerKey");
+	  consumerSecret <- found.getAs[String]("consumerSecret")
+       } yield {
+          User(id.toString, login, password, consumerKey, consumerSecret).success
+       }).getOrElse("User not found".fail)
+   }
 }
 

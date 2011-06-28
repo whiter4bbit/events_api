@@ -5,9 +5,7 @@ import info.whiter4bbit.events._
 
 object Jetty extends App {   
    val publicAPI = new Object with PublicAPI with ServicesImpl
-   val protectedAPI = new Object with ServicesImpl with ProtectedAPI {
-      val host = UfStores.users
-   }   
+   val protectedAPI = new Object with ProtectedAPI with ServicesImpl
    val app = new Object with EventsApp with ServicesImpl with Sessions with UfCollections
 
    unfiltered.jetty.Http.local(8080)
@@ -17,6 +15,6 @@ object Jetty extends App {
 	   .context("/protected") { 
 	      _.filter(Protection(UfStores))
 	      .filter(protectedAPI)
-	   }.run	   
+	   }.run 
 }
 
