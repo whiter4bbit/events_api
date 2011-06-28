@@ -10,8 +10,12 @@ import com.mongodb.casbah.Imports._
 case class OAuthUser(val id: String) extends UserLike
 
 trait Host extends unfiltered.oauth.UserHost { self: Sessions =>
-   def current[T](r: HttpRequest[T]): Option[UserLike] = {
-      /*None*/ Some(OAuthUser("1"))
+   def current[T](r: HttpRequest[T]): Option[UserLike] = r match { 
+      case Cookies(cookies) => cookies("sessionId") match {
+         case Some(Cookie(_, sessionId, _, _, _, _)) => get(sessionId)
+	 case _ => None
+      }
+      case _ => None
    }
    def accepted[T](token: String, r: HttpRequest[T]) = true
    def denied[T](token: String, r: HttpRequest[T]) = true
@@ -33,10 +37,10 @@ trait Host extends unfiltered.oauth.UserHost { self: Sessions =>
    )
    def login(token: String) = Html(
       <html>
-        <form action="/oauthenticate" method="POST">
+        <form action="/authenticate" method="POST">
 	   <input type="hidden" name="token" value={token}/>
-	   Login:<input type="text" name="login"/>
-	   Password:<input type="password" name="password"/>
+	   Login:<input type="text" name="login"/><br/>
+	   Password:<input type="password" name="password"/><br/>
 	   <input type="submit" name="submit" value="login"/>
 	</form>
       </html>

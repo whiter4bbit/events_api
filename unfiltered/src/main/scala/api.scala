@@ -20,7 +20,7 @@ trait EventsApp extends unfiltered.filter.Plan with JsonSupport with Services { 
     import QParams._
 
     def intent = {
-      case r @ PUT(Path("/autenticate") & Params(params)) => 
+      case r @ POST(Path("/authenticate") & Params(params)) => 
         val expected = for {
 	   token <- lookup("token") is required("token is required") is
 	     nonempty("token cannot be blank");	   

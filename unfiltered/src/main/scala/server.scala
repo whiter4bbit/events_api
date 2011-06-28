@@ -17,6 +17,6 @@ object Jetty extends App {
 	   .context("/protected") { 
 	      _.filter(Protection(UfStores))
 	      .filter(protectedAPI)
-	   }.run   
+	   }.run	   
 }
 
