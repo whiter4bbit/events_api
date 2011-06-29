@@ -35,7 +35,7 @@ class PublicAPISpecs extends Specification with unfiltered.spec.jetty.Served wit
      }     
      def addUser(login: String, password: String, f: PutResponse) = {
         val credentials = Map("login" -> login, "password" -> password)
-        h(host / "api" / "user" / "new" <<< compact(render(credentials)) as_str f) 
+        h(host / "public" / "user" / "new" <<< compact(render(credentials)) as_str f) 
      }
      "create user with valid data" in {
         addUser("pasha", "123", { case (code, _, _, _) => code must_==200 })
