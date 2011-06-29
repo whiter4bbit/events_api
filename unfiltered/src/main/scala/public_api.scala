@@ -66,3 +66,25 @@ trait PublicAPI extends unfiltered.filter.Plan with JsonSupport with Services {
   }
 }
 
+trait PublicAPINetty extends unfiltered.netty.cycle.Plan with JsonSupport with Services {  
+   object int {
+      def unapply(s: String): Option[Int] = {
+         try {
+	   val i = Integer.parseInt(s)	   
+           if (i > 0 && i < 100) Some(i) else None
+	 } catch {
+	   case _ => None
+	 }
+      }
+   }
+   def intent = {
+         case GET(Path(Seg("public" :: "events" :: "latest" :: int(num) :: Nil))) => {         
+            eventService.latest(num).map((events) => {
+	         JsonContent ~> ResponseString(write(events))
+	    }) ||| ((e: String) => {	 
+	         BadRequest ~> ResponseString(e)
+	    })
+         }
+   }
+}
+

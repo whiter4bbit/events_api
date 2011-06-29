@@ -22,6 +22,7 @@ object Dependencies {
    val unfilteredFilter = "net.databinder" %% "unfiltered-filter" % "0.3.4"  
    val unfilteredJetty = "net.databinder" %% "unfiltered-jetty" % "0.3.4"
    val unfilteredJson = "net.databinder" %% "unfiltered-json" % "0.3.4"
+   val unfilteredNetty = "net.databinder" %% "unfiltered-netty" % "0.3.4"
    val unfilteredOAuth = "net.databinder" %% "unfiltered-oauth" % "0.3.4"
    val unfilteredSpec = "net.databinder" %% "unfiltered-spec" % "0.3.4" //% "test"
    val dispatchOauth = "net.databinder" %% "dispatch-oauth" % "0.7.8"
@@ -64,7 +65,7 @@ object EventsAPI extends Build {
 
    val unfilteredSettings = Seq (
      resolvers := allResolvers,
-     libraryDependencies := Seq(paranamer, unfilteredFilter, unfilteredJetty, unfilteredOAuth, unfilteredJson, liftJsonScalaz, liftJson, liftJsonExt, unfilteredSpec, slf4jBinding, dispatchOauth)     
+     libraryDependencies := Seq(paranamer, unfilteredNetty, unfilteredFilter, unfilteredJetty, unfilteredOAuth, unfilteredJson, liftJsonScalaz, liftJson, liftJsonExt, unfilteredSpec, slf4jBinding, dispatchOauth)     
    )
 
    val coreSettings = Seq (
@@ -75,7 +76,9 @@ object EventsAPI extends Build {
    lazy val scalatraImpl: Project = Project(   
       "events-scalatra", 
       file("scalatra"), 
-      settings = buildSettings ++ webSettings ++ scalatraSettings
+      settings = buildSettings ++ webSettings ++ scalatraSettings ++ Seq(
+        jettyPort := 8081
+      )
    ) dependsOn (eventsAPI)
 
    lazy val unfilteredImpl = Project(
