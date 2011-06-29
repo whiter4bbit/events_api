@@ -17,13 +17,27 @@ trait Host extends unfiltered.oauth.UserHost { self: Sessions =>
       }
       case _ => None
    }
-   def accepted[T](token: String, r: HttpRequest[T]) = true
-   def denied[T](token: String, r: HttpRequest[T]) = true
+   def accepted[T](token: String, r: HttpRequest[T]) = r match {
+      case Params(params) => params("submit") match {
+         case Seq("Allow") => true
+	 case _ => false
+      }
+      case _ => false
+   }
+   def denied[T](token: String, r: HttpRequest[T]) = r match {
+      case Params(params) => params("submit") match {
+         case Seq("Deny") => true
+	 case _ => false
+      }
+      case _ => false
+   }
+
    def requestAcceptance(token: String, consumer: Consumer) = Html(
       <html>
          <form action="/oauth/authorize" method="POST">
-	    <input type="hidden" name="token" value={token}/>
+	    <input type="hidden" name="oauth_token" value={token}/>
 	    <input type="submit" name="submit" value="Allow"/>
+	    <input type="submit" name="submit" value="Deny"/>	    
 	 </form>
       </html>
    )
