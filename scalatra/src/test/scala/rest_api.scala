@@ -54,7 +54,7 @@ class RestAPISpec extends EventsAPISpec with JsonSupport {
          cleanCollections	          
 	 val json = compact(render(Map("login" -> "pasha", 	 
 	                               "password" -> "54321")))				       
-         put("/api/user/new", json) {
+         val user = put("/api/user/new", json) {
 	    status must ==(200)
 	    user = parse(body).extract[User]
 	 }
